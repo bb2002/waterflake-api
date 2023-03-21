@@ -24,7 +24,7 @@ import { UsersModule } from './components/users/users.module';
         password: configService.get('DB_PASS'),
         database: configService.get('DB_NAME'),
         entities: [__dirname + '/components/**/entities/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),

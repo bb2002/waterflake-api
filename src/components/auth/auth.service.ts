@@ -24,6 +24,11 @@ export class AuthService {
   }
 
   async getOrCreateUser(dto: CreateUserDto): Promise<UserEntity> {
-    throw new Error();
+    const user = await this.usersService.findUserBySnsId(dto.snsId);
+    if (user) {
+      return user;
+    }
+
+    return this.usersService.createUser(dto);
   }
 }
