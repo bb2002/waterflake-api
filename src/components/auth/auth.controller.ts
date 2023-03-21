@@ -4,7 +4,6 @@ import InvalidAccessTokenException from './exceptions/InvalidAccessToken.excepti
 import transformAndValidate from '../../common/utils/TransformAndValidate';
 import CreateUserDto from '../users/dto/CreateUser.dto';
 import LoginProvider from '../../common/enums/LoginProvider';
-import UserEntity from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +30,7 @@ export class AuthController {
 
     const user = await this.authService.getOrCreateUser(createUserDto);
 
-    return this.generateJWTToken(user);
+    return this.authService.login(user);
   }
 
   private getOrThrowBearerToken(token: string): string {
@@ -40,9 +39,5 @@ export class AuthController {
     }
 
     throw new InvalidAccessTokenException();
-  }
-
-  private generateJWTToken(user: UserEntity): string {
-    return '1234';
   }
 }

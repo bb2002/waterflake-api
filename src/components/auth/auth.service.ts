@@ -4,10 +4,15 @@ import axios from 'axios';
 import GoogleLoginResult from './types/GoogleLoginResult';
 import CreateUserDto from '../users/dto/CreateUser.dto';
 import UserEntity from '../users/entities/user.entity';
+import JwtLoginResult from './types/JwtLoginResult';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async getUserProfileFromGoogle(
     accessToken: string,
@@ -25,5 +30,15 @@ export class AuthService {
 
   async getOrCreateUser(dto: CreateUserDto): Promise<UserEntity> {
     throw new Error();
+  }
+
+  async login(user: UserEntity): Promise<JwtLoginResult> {
+    const payload = { sub: user._id };
+
+    return {
+      name: user.name,
+      thumbnailUrl: user.thumbnailUrl,
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }
