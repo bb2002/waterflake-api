@@ -5,7 +5,6 @@ import {
   Entity,
   Index,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import LoginProvider from '../../../common/enums/LoginProvider';
 
@@ -14,9 +13,7 @@ export default class UserEntity {
   @PrimaryGeneratedColumn()
   _id: number;
 
-  @Index('uq_sns_id', {
-    unique: true,
-  })
+  @Index('ix_sns_id')
   @Column({
     name: 'sns_id',
     type: 'varchar',

@@ -15,6 +15,16 @@ export class UsersService {
     return this.userRepository.findOne({
       where: {
         snsId,
+        deletedAt: null,
+      },
+    });
+  }
+
+  async findUserById(id: number) {
+    return this.userRepository.findOne({
+      where: {
+        _id: id,
+        deletedAt: null,
       },
     });
   }
@@ -24,7 +34,7 @@ export class UsersService {
       loginProvider: dto.loginProvider,
       snsId: dto.snsId,
       name: dto.name,
-      email: dto.name,
+      email: dto.email,
       thumbnailUrl: dto.thumbnailUrl,
     });
   }
