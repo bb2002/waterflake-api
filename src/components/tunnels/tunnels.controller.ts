@@ -14,5 +14,8 @@ export class TunnelsController {
   async createTunnel(
     @CurrentUser() user: UserEntity,
     @Body() createTunnelDto: CreateTunnelDto,
-  ) {}
+  ) {
+    console.log('user', user);
+    console.log('createTunnelDto', createTunnelDto);
+  }
 }

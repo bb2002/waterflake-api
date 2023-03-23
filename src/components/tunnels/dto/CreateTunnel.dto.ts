@@ -6,6 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 import LocalServer from '../../../common/enums/LocalServer';
+import RootDomain from '../../../common/enums/RootDomain';
 
 export default class CreateTunnelDto {
   @IsEnum(LocalServer)
@@ -17,7 +18,12 @@ export default class CreateTunnelDto {
   name: string;
 
   @IsString()
-  address: string;
+  @MinLength(3)
+  @MaxLength(30)
+  subDomain: string;
+
+  @IsEnum(RootDomain)
+  rootDomain: string;
 
   @IsNumber()
   planId: number;

@@ -2,12 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import UserEntity from '../../users/entities/user.entity';
 import PlanEntity from '../../plans/entities/plan.entity';
 import RegionEntity from '../../regions/entities/region.entity';
+import RootDomain from '../../../common/enums/RootDomain';
 
 @Entity('wf_tunnels')
 export default class TunnelEntity {
@@ -21,12 +23,22 @@ export default class TunnelEntity {
   })
   name: string;
 
+  @Index('uq_sub_domain', {
+    unique: true,
+  })
   @Column({
-    name: 'address',
+    name: 'sub_domain',
     type: 'varchar',
     nullable: false,
   })
-  address: string;
+  subDomain: string;
+
+  @Column({
+    name: 'root_domain',
+    type: 'varchar',
+    nullable: false,
+  })
+  rootDomain: RootDomain;
 
   @Column({
     name: 'clientId',
