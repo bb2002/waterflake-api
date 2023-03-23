@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import TunnelEntity from '../../tunnels/entities/tunnel.entity';
 
 @Entity('wf_regions')
 export default class RegionEntity {
@@ -32,4 +33,7 @@ export default class RegionEntity {
     nullable: false,
   })
   endPortRange: number;
+
+  @OneToMany(() => TunnelEntity, (tunnel) => tunnel.region)
+  installedTunnels: TunnelEntity[];
 }

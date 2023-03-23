@@ -4,9 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import LoginProvider from '../../../common/enums/LoginProvider';
+import TunnelEntity from '../../tunnels/entities/tunnel.entity';
 
 @Entity('wf_users')
 export default class UserEntity {
@@ -49,6 +51,9 @@ export default class UserEntity {
     nullable: true,
   })
   thumbnailUrl: string;
+
+  @OneToMany(() => TunnelEntity, (tunnel) => tunnel.owner)
+  myTunnels: TunnelEntity[];
 
   @CreateDateColumn()
   createdAt: Date;

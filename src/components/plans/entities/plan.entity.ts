@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import TunnelEntity from '../../tunnels/entities/tunnel.entity';
 
 @Entity('wf_plans')
 export default class PlanEntity {
@@ -46,4 +47,7 @@ export default class PlanEntity {
     nullable: false,
   })
   isEnabled: boolean;
+
+  @OneToMany(() => TunnelEntity, (tunnel) => tunnel.plan)
+  subscribedTunnels: TunnelEntity[];
 }
