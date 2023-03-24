@@ -10,6 +10,7 @@ import { UsersController } from './components/users/users.controller';
 import { RegionsModule } from './components/regions/regions.module';
 import { PlansModule } from './components/plans/plans.module';
 import { TunnelsModule } from './components/tunnels/tunnels.module';
+import { PoliciesModule } from './components/policies/policies.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { TunnelsModule } from './components/tunnels/tunnels.module';
     RegionsModule,
     PlansModule,
     TunnelsModule,
+    PoliciesModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService],

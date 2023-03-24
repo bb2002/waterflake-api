@@ -23,7 +23,7 @@ export default class CreateTunnelDto {
   subDomain: string;
 
   @IsEnum(RootDomain)
-  rootDomain: string;
+  rootDomain: RootDomain;
 
   @IsNumber()
   planId: number;

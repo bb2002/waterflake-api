@@ -1,7 +1,7 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
-export default class RegionNotFoundException extends BadRequestException {
+export default class SubDomainTooShortException extends BadRequestException {
   constructor() {
-    super('Plan is not found.');
+    super('subdomain is too short');
   }
 }
