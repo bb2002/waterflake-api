@@ -12,6 +12,7 @@ import { PoliciesService } from '../../policies/policies.service';
 import BlockedDomainException from '../exceptions/BlockedDomain.exception';
 import UserEntity from '../../users/entities/user.entity';
 import TunnelCountExceedException from '../exceptions/TunnelCountExceed.exception';
+import CreateTunnelDto from "../dto/CreateTunnel.dto";
 
 @Injectable()
 export class TunnelsService {
@@ -21,6 +22,10 @@ export class TunnelsService {
     @InjectRepository(TunnelEntity)
     private readonly tunnelRepository: Repository<TunnelEntity>,
   ) {}
+
+  async createTunnel(owner: UserEntity, createTunnelDto: CreateTunnelDto) {
+
+  }
 
   async validateCanUserCreateTunnel(user: UserEntity) {
     if (await this.isUserTunnelCountExceed(user)) {

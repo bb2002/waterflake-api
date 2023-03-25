@@ -8,6 +8,7 @@ import rootDomain from '../../common/enums/RootDomain';
 import { PlansService } from '../plans/plans.service';
 import { RegionsService } from '../regions/regions.service';
 import RootDomain from '../../common/enums/RootDomain';
+import InvalidInputException from "../../common/exceptions/InvalidInput.exception";
 
 @Controller('tunnels')
 export class TunnelsController {
@@ -23,16 +24,17 @@ export class TunnelsController {
     @CurrentUser() user: UserEntity,
     @Body() createTunnelDto: CreateTunnelDto,
   ) {
-    // Check can user create tunnel
-    await this.tunnelsService.validateCanUserCreateTunnel(user);
-
     const plan = await this.plansService.getPlanById(createTunnelDto.planId);
     const region = await this.regionsService.getRegionById(
-      createTunnelDto.regionId,
+        createTunnelDto.regionId,
     );
 
-    // TODO
-    // check plan and region
+    if (!plan || !region) {
+      throw new InvalidInputException();
+    }
+
+    // Check can user create tunnel
+    await this.tunnelsService.validateCanUserCreateTunnel(user);
 
     // Check is domain name valid
     await this.tunnelsService.validateDomain(
@@ -42,6 +44,9 @@ export class TunnelsController {
       },
       plan,
     );
+
+    // Create Tunnel
+    const newTunnel = this.tunnelsService.createTunnel(user, createTunnelDto)
 
     console.log('user', user);
     console.log('createTunnelDto', createTunnelDto);

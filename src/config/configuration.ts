@@ -8,4 +8,7 @@ export default () => ({
     NAME: process.env.DB_NAME || 'waterflake',
     PASS: process.env.DB_PASS || '',
   },
+  CLOUDFLARE: {
+    TOKEN: process.env.CLOUDFLARE_TOKEN || '',
+  },
 });
