@@ -3,10 +3,19 @@ import { TunnelsController } from './tunnels.controller';
 import { TunnelsService } from './services/tunnels.service';
 import { CloudflareService } from './services/cloudflare.service';
 import { PoliciesModule } from '../policies/policies.module';
+import { PlansModule } from '../plans/plans.module';
+import { RegionsModule } from '../regions/regions.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import TunnelEntity from './entities/tunnel.entity';
 
 @Module({
   controllers: [TunnelsController],
   providers: [TunnelsService, CloudflareService],
-  imports: [PoliciesModule],
+  imports: [
+    PoliciesModule,
+    PlansModule,
+    RegionsModule,
+    TypeOrmModule.forFeature([TunnelEntity]),
+  ],
 })
 export class TunnelsModule {}

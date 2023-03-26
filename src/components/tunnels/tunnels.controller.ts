@@ -4,18 +4,14 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import UserEntity from '../users/entities/user.entity';
 import CreateTunnelDto from './dto/CreateTunnel.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import rootDomain from '../../common/enums/RootDomain';
 import { PlansService } from '../plans/plans.service';
-import { RegionsService } from '../regions/regions.service';
-import RootDomain from '../../common/enums/RootDomain';
-import InvalidInputException from "../../common/exceptions/InvalidInput.exception";
+import InvalidInputException from '../../common/exceptions/InvalidInput.exception';
 
 @Controller('tunnels')
 export class TunnelsController {
   constructor(
     private readonly tunnelsService: TunnelsService,
     private readonly plansService: PlansService,
-    private readonly regionsService: RegionsService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -25,11 +21,7 @@ export class TunnelsController {
     @Body() createTunnelDto: CreateTunnelDto,
   ) {
     const plan = await this.plansService.getPlanById(createTunnelDto.planId);
-    const region = await this.regionsService.getRegionById(
-        createTunnelDto.regionId,
-    );
-
-    if (!plan || !region) {
+    if (!plan) {
       throw new InvalidInputException();
     }
 
@@ -46,9 +38,6 @@ export class TunnelsController {
     );
 
     // Create Tunnel
-    const newTunnel = this.tunnelsService.createTunnel(user, createTunnelDto)
-
-    console.log('user', user);
-    console.log('createTunnelDto', createTunnelDto);
+    return this.tunnelsService.createTunnel(user, createTunnelDto);
   }
 }

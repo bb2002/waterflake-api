@@ -15,6 +15,7 @@ export class PlansService {
     return this.planRepository.findOne({
       where: {
         _id: id,
+        isEnabled: true,
       },
     });
   }
@@ -29,6 +30,10 @@ export class PlansService {
   }
 
   async getAllPlans(): Promise<PlanEntity[]> {
-    return this.planRepository.find();
+    return this.planRepository.find({
+      where: {
+        isEnabled: true,
+      },
+    });
   }
 }

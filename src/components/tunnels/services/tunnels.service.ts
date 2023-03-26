@@ -1,30 +1,103 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CloudflareService } from './cloudflare.service';
 import PlanEntity from '../../plans/entities/plan.entity';
 import SubDomainTooShortException from '../exceptions/SubDomainTooShort.exception';
 import { InjectRepository } from '@nestjs/typeorm';
 import TunnelEntity from '../entities/tunnel.entity';
-import { Repository } from 'typeorm';
-import RootDomain from '../../../common/enums/RootDomain';
+import { Connection, getConnection, Repository } from 'typeorm';
 import Domain from '../types/Domain';
 import DomainAlreadyExistsException from '../exceptions/DomainAlreadyExists.exception';
 import { PoliciesService } from '../../policies/policies.service';
 import BlockedDomainException from '../exceptions/BlockedDomain.exception';
 import UserEntity from '../../users/entities/user.entity';
 import TunnelCountExceedException from '../exceptions/TunnelCountExceed.exception';
-import CreateTunnelDto from "../dto/CreateTunnel.dto";
+import CreateTunnelDto from '../dto/CreateTunnel.dto';
+import transformAndValidate from '../../../common/utils/TransformAndValidate';
+import CreateSRVRecordDto from '../dto/CreateSRVRecord.dto';
+import LocalServer from '../../../common/enums/LocalServer';
+import LocalServerPolicy from '../types/LocalServerPolicy';
+import InvalidInputException from '../../../common/exceptions/InvalidInput.exception';
+import { PlansService } from '../../plans/plans.service';
+import { RegionsService } from '../../regions/regions.service';
+import CloudflareZoneID from '../../../common/enums/CloudflareZoneID';
+import CreateTunnelFailureException from '../exceptions/CreateTunnelFailure.exception';
+import { Snowflake } from 'nodejs-snowflake';
+import { v4 as uuidv4 } from 'uuid';
+import RegionEntity from '../../regions/entities/region.entity';
 
 @Injectable()
 export class TunnelsService {
   constructor(
     private readonly cloudflareService: CloudflareService,
     private readonly policiesService: PoliciesService,
+    private readonly plansService: PlansService,
+    private readonly regionsService: RegionsService,
     @InjectRepository(TunnelEntity)
     private readonly tunnelRepository: Repository<TunnelEntity>,
   ) {}
 
-  async createTunnel(owner: UserEntity, createTunnelDto: CreateTunnelDto) {
+  private readonly logger = new Logger(TunnelsService.name);
 
+  async createTunnel(owner: UserEntity, createTunnelDto: CreateTunnelDto) {
+    const { name, localServer, planId, regionId, rootDomain, subDomain } =
+      createTunnelDto;
+
+    const [localServerPolicy, region, plan] = await Promise.all([
+      await this.getLocalServerPolicy(localServer),
+      await this.regionsService.getRegionById(regionId),
+      await this.plansService.getPlanById(planId),
+    ]);
+
+    if (!localServerPolicy || !region || !plan) {
+      throw new InvalidInputException();
+    }
+
+    const [inPort, outPort] = await this.generatePortFromRegion(region);
+
+    const createSRVRecordDto = await transformAndValidate(CreateSRVRecordDto, {
+      protocol: localServerPolicy.protocol,
+      subDomain: createTunnelDto.subDomain,
+      port: outPort,
+      target: region.SRVTarget,
+      zoneId: CloudflareZoneID[rootDomain],
+    });
+
+    try {
+      const uid = new Snowflake();
+      const clientId = uid.getUniqueID().toString();
+      const clientSecret = uuidv4().replace(/-/g, '');
+
+      // Create the SRV record
+      const createSRVRecordResult =
+        await this.cloudflareService.createSRVRecord(createSRVRecordDto);
+
+      // TODO
+      // Waterflake Tunnel API 에 요청 보내기
+      // API 요청 주소는 Region 객체에서 읽기
+      // axios.post(`${region.apiEndpoint}/server`)
+
+      // Create Tunnel Entity
+      return this.tunnelRepository.save({
+        name,
+        subDomain,
+        rootDomain,
+        clientId,
+        clientSecret,
+        inPort,
+        outPort,
+        DNSRecordId: createSRVRecordResult.result.id,
+        owner,
+        plan,
+        region,
+      });
+    } catch (ex) {
+      this.logger.error(ex);
+      throw new CreateTunnelFailureException();
+    }
   }
 
   async validateCanUserCreateTunnel(user: UserEntity) {
@@ -92,5 +165,40 @@ export class TunnelsService {
         rootDomain: domain.rootDomain,
       },
     });
+  }
+
+  async getLocalServerPolicy(
+    localServer: LocalServer,
+  ): Promise<LocalServerPolicy | null> {
+    const json = JSON.parse(
+      (
+        await this.policiesService.getPolicyByKey(
+          `localServer.policy.${localServer}`,
+        )
+      )?.value ?? '{}',
+    );
+
+    return json ? (json as LocalServerPolicy) : null;
+  }
+
+  async generatePortFromRegion(region: RegionEntity): Promise<number[]> {
+    const usingPorts = (
+      await this.tunnelRepository
+        .createQueryBuilder()
+        .select(['in_port', 'out_port'])
+        .where('region_id = :regionId', { regionId: region._id })
+        .getMany()
+    )
+      .map((entity) => [entity.inPort, entity.outPort])
+      .reduce((pv, cv) => [...pv, ...cv], []);
+
+    const ports = Array.from(Array(region.endPortRange + 1).keys())
+      .slice(region.startPortRange)
+      .filter((x) => !usingPorts.includes(x));
+
+    return [
+      ports[Math.floor(Math.random() * ports.length)],
+      ports[Math.floor(Math.random() * ports.length)],
+    ];
   }
 }

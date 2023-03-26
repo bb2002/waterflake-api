@@ -14,13 +14,6 @@ export default class RegionEntity {
   name: string;
 
   @Column({
-    name: 'dns_record_name',
-    type: 'varchar',
-    nullable: false,
-  })
-  dnsRecordName: string;
-
-  @Column({
     name: 'start_port_range',
     type: 'int',
     nullable: false,
@@ -33,6 +26,20 @@ export default class RegionEntity {
     nullable: false,
   })
   endPortRange: number;
+
+  @Column({
+    name: 'srv_target',
+    type: 'varchar',
+    nullable: false,
+  })
+  SRVTarget: string;
+
+  @Column({
+    name: 'api_endpoint',
+    type: 'varchar',
+    nullable: false,
+  })
+  apiEndPoint: string;
 
   @OneToMany(() => TunnelEntity, (tunnel) => tunnel.region)
   installedTunnels: TunnelEntity[];

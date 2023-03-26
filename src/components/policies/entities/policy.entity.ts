@@ -1,10 +1,12 @@
 import {
   Column,
   CreateDateColumn,
+  Entity,
   Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+@Entity('wf_policies')
 export default class PolicyEntity {
   @PrimaryGeneratedColumn()
   _id: number;

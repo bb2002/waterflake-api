@@ -23,9 +23,7 @@ export default class TunnelEntity {
   })
   name: string;
 
-  @Index('uq_sub_domain', {
-    unique: true,
-  })
+  @Index('ix_sub_domain')
   @Column({
     name: 'sub_domain',
     type: 'varchar',
@@ -67,6 +65,13 @@ export default class TunnelEntity {
     nullable: false,
   })
   outPort: number;
+
+  @Column({
+    name: 'dns_record_id',
+    type: 'varchar',
+    nullable: false,
+  })
+  DNSRecordId: string;
 
   @ManyToOne(() => UserEntity, (user) => user.myTunnels)
   owner: UserEntity;
