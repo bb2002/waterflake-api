@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CloudflareService } from './cloudflare.service';
 import PlanEntity from '../../plans/entities/plan.entity';
 import SubDomainTooShortException from '../exceptions/SubDomainTooShort.exception';
 import { InjectRepository } from '@nestjs/typeorm';
 import TunnelEntity from '../entities/tunnel.entity';
-import { Connection, getConnection, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import Domain from '../types/Domain';
 import DomainAlreadyExistsException from '../exceptions/DomainAlreadyExists.exception';
 import { PoliciesService } from '../../policies/policies.service';
@@ -35,12 +31,21 @@ export class TunnelsService {
     private readonly cloudflareService: CloudflareService,
     private readonly policiesService: PoliciesService,
     private readonly plansService: PlansService,
+    @Inject(forwardRef(() => RegionsService))
     private readonly regionsService: RegionsService,
     @InjectRepository(TunnelEntity)
     private readonly tunnelRepository: Repository<TunnelEntity>,
   ) {}
 
   private readonly logger = new Logger(TunnelsService.name);
+
+  async getTunnelByClientId(clientId: string): Promise<TunnelEntity | null> {
+    return this.tunnelRepository.findOne({
+      where: {
+        clientId,
+      },
+    });
+  }
 
   async createTunnel(owner: UserEntity, createTunnelDto: CreateTunnelDto) {
     const { name, localServer, planId, regionId, rootDomain, subDomain } =

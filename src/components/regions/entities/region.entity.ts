@@ -14,6 +14,13 @@ export default class RegionEntity {
   name: string;
 
   @Column({
+    name: 'access_token',
+    type: 'varchar',
+    nullable: false,
+  })
+  accessToken: string;
+
+  @Column({
     name: 'start_port_range',
     type: 'int',
     nullable: false,

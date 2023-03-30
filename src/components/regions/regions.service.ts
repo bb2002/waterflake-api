@@ -19,6 +19,14 @@ export class RegionsService {
     });
   }
 
+  async getRegionByToken(token: string): Promise<RegionEntity | null> {
+    return this.regionRepository.findOne({
+      where: {
+        accessToken: token,
+      },
+    });
+  }
+
   async getOrThrowRegionById(id: number): Promise<RegionEntity> {
     const region = await this.getRegionById(id);
     if (region) {
