@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import RegionEntity from './entities/region.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import RegionNotFoundException from './exceptions/RegionNotFound.exception';
+import { TunnelsService } from '../tunnels/services/tunnels.service';
 
 @Injectable()
 export class RegionsService {

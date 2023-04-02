@@ -18,7 +18,7 @@ export class RegionAccessTokenGuard implements CanActivate {
 
     if (authorization) {
       const token = authorization.replace('Bearer ', '');
-      return !(await this.regionsService.getRegionByToken(token));
+      return !!(await this.regionsService.getRegionByToken(token));
     }
 
     return false;

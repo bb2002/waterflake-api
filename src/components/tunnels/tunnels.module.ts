@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TunnelsController } from './tunnels.controller';
 import { TunnelsService } from './services/tunnels.service';
 import { CloudflareService } from './services/cloudflare.service';
@@ -14,8 +14,9 @@ import TunnelEntity from './entities/tunnel.entity';
   imports: [
     PoliciesModule,
     PlansModule,
-    RegionsModule,
+    forwardRef(() => RegionsModule),
     TypeOrmModule.forFeature([TunnelEntity]),
   ],
+  exports: [TunnelsService],
 })
 export class TunnelsModule {}

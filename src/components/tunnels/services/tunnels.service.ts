@@ -44,6 +44,16 @@ export class TunnelsService {
       where: {
         clientId,
       },
+      relations: ['owner', 'plan', 'region'],
+    });
+  }
+
+  async getTunnelByDomain(domain: Domain) {
+    return this.tunnelRepository.findOne({
+      where: {
+        subDomain: domain.subDomain,
+        rootDomain: domain.rootDomain,
+      },
     });
   }
 
@@ -161,15 +171,6 @@ export class TunnelsService {
     }
 
     return Infinity;
-  }
-
-  async getTunnelByDomain(domain: Domain) {
-    return this.tunnelRepository.findOne({
-      where: {
-        subDomain: domain.subDomain,
-        rootDomain: domain.rootDomain,
-      },
-    });
   }
 
   async getLocalServerPolicy(
