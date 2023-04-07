@@ -24,6 +24,8 @@ import CreateTunnelFailureException from '../exceptions/CreateTunnelFailure.exce
 import { Snowflake } from 'nodejs-snowflake';
 import { v4 as uuidv4 } from 'uuid';
 import RegionEntity from '../../regions/entities/region.entity';
+import DeleteSRVRecordDto from '../dto/DeleteSRVRecord.dto';
+import DeleteTunnelFailureException from '../exceptions/DeleteTunnelFailure.exception';
 
 @Injectable()
 export class TunnelsService {
@@ -38,6 +40,16 @@ export class TunnelsService {
   ) {}
 
   private readonly logger = new Logger(TunnelsService.name);
+
+  async getTunnelsByUser(user: UserEntity) {
+    return this.tunnelRepository.find({
+      where: {
+        owner: {
+          _id: user._id,
+        },
+      },
+    });
+  }
 
   async getTunnelByClientId(clientId: string): Promise<TunnelEntity | null> {
     return this.tunnelRepository.findOne({
@@ -55,6 +67,31 @@ export class TunnelsService {
         rootDomain: domain.rootDomain,
       },
     });
+  }
+
+  async deleteTunnel(tunnel: TunnelEntity) {
+    const { DNSRecordId, rootDomain } = tunnel;
+
+    const deleteSRVRecordDto = await transformAndValidate(DeleteSRVRecordDto, {
+      DNSRecordId,
+      zoneId: CloudflareZoneID[rootDomain],
+    });
+
+    try {
+      // 터널을 디비상에서 삭제
+      await this.tunnelRepository.delete(tunnel);
+
+      // Cloudflare SRV 레코드 삭제
+      await this.cloudflareService.deleteSRVRecord(deleteSRVRecordDto);
+
+      // TODO Waterflake Tunnel API 중지 요청 보내기
+      // 해당 터널을 중지 시킴
+
+      // TODO 삭제된 터널에 대한 로그를 남긴다.
+    } catch (ex) {
+      this.logger.error(ex);
+      throw new DeleteTunnelFailureException();
+    }
   }
 
   async createTunnel(owner: UserEntity, createTunnelDto: CreateTunnelDto) {
@@ -90,8 +127,7 @@ export class TunnelsService {
       const createSRVRecordResult =
         await this.cloudflareService.createSRVRecord(createSRVRecordDto);
 
-      // TODO
-      // Waterflake Tunnel API 에 요청 보내기
+      // TODO Waterflake Tunnel API 에 생성 요청 보내기
       // API 요청 주소는 Region 객체에서 읽기
       // axios.post(`${region.apiEndpoint}/server`)
 
