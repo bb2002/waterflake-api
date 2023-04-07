@@ -12,6 +12,7 @@ import { PlansModule } from './components/plans/plans.module';
 import { TunnelsModule } from './components/tunnels/tunnels.module';
 import { PoliciesModule } from './components/policies/policies.module';
 import { RegionsController } from './components/regions/regions.controller';
+import { StatisticsModule } from './components/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { RegionsController } from './components/regions/regions.controller';
     PlansModule,
     TunnelsModule,
     PoliciesModule,
+    StatisticsModule,
   ],
   controllers: [AppController, UsersController, RegionsController],
   providers: [AppService],

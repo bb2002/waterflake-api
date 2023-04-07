@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -18,6 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PlansService } from '../plans/plans.service';
 import InvalidInputException from '../../common/exceptions/InvalidInput.exception';
 import TunnelEntity from './entities/tunnel.entity';
+import UpdateTunnelDto from './dto/UpdateTunnel.dto';
 
 @Controller('tunnels')
 export class TunnelsController {
@@ -85,7 +85,16 @@ export class TunnelsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('/:clientId')
-  async updateTunnel() {}
+  async updateTunnel(
+    @CurrentUser() user: UserEntity,
+    @Body() updateTunnelDto: UpdateTunnelDto,
+    @Param('clientId') clientId: string,
+  ) {
+    const tunnel = await this.tunnelsService.getTunnelByClientId(clientId);
+    this.validateIsTunnelOwner(tunnel, user);
+
+    return this.tunnelsService.updateTunnel(tunnel, updateTunnelDto);
+  }
 
   private validateIsTunnelOwner(tunnel: TunnelEntity, owner: UserEntity) {
     if (tunnel.owner._id !== owner._id) {

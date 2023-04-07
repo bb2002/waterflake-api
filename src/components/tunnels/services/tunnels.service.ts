@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RegionEntity from '../../regions/entities/region.entity';
 import DeleteSRVRecordDto from '../dto/DeleteSRVRecord.dto';
 import DeleteTunnelFailureException from '../exceptions/DeleteTunnelFailure.exception';
+import UpdateTunnelDto from '../dto/UpdateTunnel.dto';
 
 @Injectable()
 export class TunnelsService {
@@ -67,6 +68,11 @@ export class TunnelsService {
         rootDomain: domain.rootDomain,
       },
     });
+  }
+
+  async updateTunnel(tunnel: TunnelEntity, updateTunnelDto: UpdateTunnelDto) {
+    const { name } = updateTunnelDto;
+    return this.tunnelRepository.update({ name }, tunnel);
   }
 
   async deleteTunnel(tunnel: TunnelEntity) {

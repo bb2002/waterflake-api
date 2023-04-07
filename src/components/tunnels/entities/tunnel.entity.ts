@@ -4,12 +4,14 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import UserEntity from '../../users/entities/user.entity';
 import PlanEntity from '../../plans/entities/plan.entity';
 import RegionEntity from '../../regions/entities/region.entity';
 import RootDomain from '../../../common/enums/RootDomain';
+import TrafficStatisticEntity from '../../statistics/entities/traffic-statistic.entity';
 
 @Entity('wf_tunnels')
 export default class TunnelEntity {
@@ -81,6 +83,12 @@ export default class TunnelEntity {
 
   @ManyToOne(() => RegionEntity, (region) => region.installedTunnels)
   region: RegionEntity;
+
+  @OneToMany(
+    () => TrafficStatisticEntity,
+    (trafficStatistic) => trafficStatistic.tunnel,
+  )
+  trafficStatistics: TrafficStatisticEntity[];
 
   @CreateDateColumn()
   createdAt: Date;
