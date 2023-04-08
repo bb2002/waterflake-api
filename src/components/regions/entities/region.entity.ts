@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import TunnelEntity from '../../tunnels/entities/tunnel.entity';
+import TrafficStatisticEntity from '../../statistics/entities/traffic-statistic.entity';
 
 @Entity('wf_regions')
 export default class RegionEntity {
@@ -50,4 +51,10 @@ export default class RegionEntity {
 
   @OneToMany(() => TunnelEntity, (tunnel) => tunnel.region)
   installedTunnels: TunnelEntity[];
+
+  @OneToMany(
+    () => TrafficStatisticEntity,
+    (trafficStatistic) => trafficStatistic.region,
+  )
+  trafficStatistic: TrafficStatisticEntity[];
 }

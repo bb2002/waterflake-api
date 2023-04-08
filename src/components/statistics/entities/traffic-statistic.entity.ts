@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import TunnelEntity from '../../tunnels/entities/tunnel.entity';
+import RegionEntity from '../../regions/entities/region.entity';
 
 @Entity('wf_traffic_statistics')
 export default class TrafficStatisticEntity {
@@ -54,6 +55,9 @@ export default class TrafficStatisticEntity {
 
   @ManyToOne(() => TunnelEntity, (tunnel) => tunnel.trafficStatistics)
   tunnel: TunnelEntity;
+
+  @ManyToOne(() => RegionEntity, (region) => region.trafficStatistic)
+  region: RegionEntity;
 
   @CreateDateColumn()
   createdAt: Date;
