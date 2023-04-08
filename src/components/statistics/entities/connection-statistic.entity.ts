@@ -9,7 +9,7 @@ import {
 import TunnelEntity from '../../tunnels/entities/tunnel.entity';
 
 @Entity('wf_connection_statistics')
-export default class TrafficConnectionEntity {
+export default class ConnectionStatisticEntity {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   _id: number;
 
