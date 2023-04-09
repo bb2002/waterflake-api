@@ -52,6 +52,16 @@ export class TunnelsService {
     });
   }
 
+  async getTunnelsByRegionId(region: RegionEntity) {
+    return this.tunnelRepository.find({
+      where: {
+        region: {
+          _id: region._id,
+        },
+      },
+    });
+  }
+
   async getTunnelByClientId(clientId: string): Promise<TunnelEntity | null> {
     return this.tunnelRepository.findOne({
       where: {

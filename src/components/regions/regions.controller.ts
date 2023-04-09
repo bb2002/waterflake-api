@@ -11,6 +11,8 @@ import { RegionAccessTokenGuard } from '../../common/guards/region-access-token.
 import TunnelEntity from '../tunnels/entities/tunnel.entity';
 import { RegionsService } from './regions.service';
 import { TunnelsService } from '../tunnels/services/tunnels.service';
+import { CurrentRegion } from '../../common/decorators/current-region.decorator';
+import RegionEntity from './entities/region.entity';
 
 @Controller('regions')
 export class RegionsController {
@@ -32,5 +34,11 @@ export class RegionsController {
     }
 
     return tunnel;
+  }
+
+  @UseGuards(RegionAccessTokenGuard)
+  @Get('/tunnels')
+  async getAllTunnels(@CurrentRegion() region: RegionEntity) {
+    console.log('region:', region);
   }
 }
