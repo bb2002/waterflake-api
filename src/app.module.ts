@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -44,7 +42,7 @@ import { StatisticsModule } from './components/statistics/statistics.module';
     PoliciesModule,
     StatisticsModule,
   ],
-  controllers: [AppController, UsersController, RegionsController],
-  providers: [AppService],
+  controllers: [UsersController, RegionsController],
+  providers: [],
 })
 export class AppModule {}
