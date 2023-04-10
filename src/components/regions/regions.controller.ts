@@ -39,6 +39,6 @@ export class RegionsController {
   @UseGuards(RegionAccessTokenGuard)
   @Get('/tunnels')
   async getAllTunnels(@CurrentRegion() region: RegionEntity) {
-    console.log('region:', region);
+    return this.tunnelsService.getTunnelsByRegionId(region);
   }
 }
