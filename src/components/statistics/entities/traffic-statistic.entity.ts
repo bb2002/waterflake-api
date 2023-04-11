@@ -53,7 +53,9 @@ export default class TrafficStatisticEntity {
   })
   time: string;
 
-  @ManyToOne(() => TunnelEntity, (tunnel) => tunnel.trafficStatistics)
+  @ManyToOne(() => TunnelEntity, (tunnel) => tunnel.trafficStatistics, {
+    onDelete: 'CASCADE',
+  })
   tunnel: TunnelEntity;
 
   @ManyToOne(() => RegionEntity, (region) => region.trafficStatistic)

@@ -52,7 +52,9 @@ export default class ConnectionStatisticEntity {
   })
   time: string;
 
-  @ManyToOne(() => TunnelEntity, (tunnel) => tunnel.trafficStatistics)
+  @ManyToOne(() => TunnelEntity, (tunnel) => tunnel.trafficStatistics, {
+    onDelete: 'CASCADE',
+  })
   tunnel: TunnelEntity;
 
   @CreateDateColumn()
