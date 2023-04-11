@@ -4,12 +4,10 @@ import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './components/auth/auth.module';
 import { UsersModule } from './components/users/users.module';
-import { UsersController } from './components/users/users.controller';
 import { RegionsModule } from './components/regions/regions.module';
 import { PlansModule } from './components/plans/plans.module';
 import { TunnelsModule } from './components/tunnels/tunnels.module';
 import { PoliciesModule } from './components/policies/policies.module';
-import { RegionsController } from './components/regions/regions.controller';
 import { StatisticsModule } from './components/statistics/statistics.module';
 
 @Module({
@@ -42,7 +40,7 @@ import { StatisticsModule } from './components/statistics/statistics.module';
     PoliciesModule,
     StatisticsModule,
   ],
-  controllers: [UsersController, RegionsController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}
