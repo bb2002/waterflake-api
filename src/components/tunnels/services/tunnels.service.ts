@@ -27,6 +27,8 @@ import RegionEntity from '../../regions/entities/region.entity';
 import DeleteSRVRecordDto from '../dto/DeleteSRVRecord.dto';
 import DeleteTunnelFailureException from '../exceptions/DeleteTunnelFailure.exception';
 import UpdateTunnelDto from '../dto/UpdateTunnel.dto';
+import axios from 'axios';
+import { TunnelServerService } from './tunnel-server.service';
 
 @Injectable()
 export class TunnelsService {
@@ -34,6 +36,7 @@ export class TunnelsService {
     private readonly cloudflareService: CloudflareService,
     private readonly policiesService: PoliciesService,
     private readonly plansService: PlansService,
+    private readonly tunnelServerService: TunnelServerService,
     @Inject(forwardRef(() => RegionsService))
     private readonly regionsService: RegionsService,
     @InjectRepository(TunnelEntity)
@@ -93,6 +96,8 @@ export class TunnelsService {
       zoneId: CloudflareZoneID[rootDomain],
     });
 
+    const region = (await this.getTunnelByClientId(tunnel.clientId)).region;
+
     try {
       // 터널을 디비상에서 삭제
       await this.tunnelRepository.delete(tunnel);
@@ -100,8 +105,10 @@ export class TunnelsService {
       // Cloudflare SRV 레코드 삭제
       await this.cloudflareService.deleteSRVRecord(deleteSRVRecordDto);
 
-      // TODO Waterflake Tunnel API 중지 요청 보내기
-      // 해당 터널을 중지 시킴
+      await this.tunnelServerService.shutdownTunnel({
+        region,
+        clientId: tunnel.clientId,
+      });
 
       // TODO 삭제된 터널에 대한 로그를 남긴다.
     } catch (ex) {
@@ -143,12 +150,7 @@ export class TunnelsService {
       const createSRVRecordResult =
         await this.cloudflareService.createSRVRecord(createSRVRecordDto);
 
-      // TODO Waterflake Tunnel API 에 생성 요청 보내기
-      // API 요청 주소는 Region 객체에서 읽기
-      // axios.post(`${region.apiEndpoint}/server`)
-
-      // Create Tunnel Entity
-      return this.tunnelRepository.save({
+      const tunnel = await this.tunnelRepository.save({
         name,
         subDomain,
         rootDomain,
@@ -161,6 +163,11 @@ export class TunnelsService {
         plan,
         region,
       });
+
+      // Start Tunnel Server
+      await this.tunnelServerService.startUpTunnel({ region, clientId });
+
+      return tunnel;
     } catch (ex) {
       this.logger.error(ex);
       throw new CreateTunnelFailureException();

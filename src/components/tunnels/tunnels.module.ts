@@ -7,10 +7,11 @@ import { PlansModule } from '../plans/plans.module';
 import { RegionsModule } from '../regions/regions.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import TunnelEntity from './entities/tunnel.entity';
+import { TunnelServerService } from './services/tunnel-server.service';
 
 @Module({
   controllers: [TunnelsController],
-  providers: [TunnelsService, CloudflareService],
+  providers: [TunnelsService, CloudflareService, TunnelServerService],
   imports: [
     PoliciesModule,
     PlansModule,
