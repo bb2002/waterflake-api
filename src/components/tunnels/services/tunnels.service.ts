@@ -105,6 +105,7 @@ export class TunnelsService {
       // Cloudflare SRV 레코드 삭제
       await this.cloudflareService.deleteSRVRecord(deleteSRVRecordDto);
 
+      // 터널 중단
       await this.tunnelServerService.shutdownTunnel({
         region,
         clientId: tunnel.clientId,
