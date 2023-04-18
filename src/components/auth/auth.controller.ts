@@ -62,10 +62,10 @@ export class AuthController {
       ...tunnel,
       region: {
         name: tunnel.region.name,
-        apiEndpoint: tunnel.region.apiEndPoint,
+        SRVTarget: tunnel.region.SRVTarget,
       },
       owner: undefined,
-      plain: undefined,
+      plan: undefined,
     };
   }
 
