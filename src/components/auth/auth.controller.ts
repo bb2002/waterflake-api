@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Headers,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
@@ -44,6 +46,7 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('/tunnel/:clientId')
   async tunnelLogin(
     @Param('clientId') clientId: string,
@@ -55,11 +58,15 @@ export class AuthController {
       throw new NotFoundException();
     }
 
-    delete tunnel.owner;
-    delete tunnel.region;
-    delete tunnel.plan;
-
-    return tunnel;
+    return {
+      ...tunnel,
+      region: {
+        name: tunnel.region.name,
+        apiEndpoint: tunnel.region.apiEndPoint,
+      },
+      owner: undefined,
+      plain: undefined,
+    };
   }
 
   private getOrThrowBearerToken(token: string): string {
