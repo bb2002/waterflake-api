@@ -28,7 +28,7 @@ import { StatisticsModule } from './components/statistics/statistics.module';
         database: configService.get('DB_NAME'),
         entities: [__dirname + '/components/**/entities/*.entity{.ts,.js}'],
         synchronize: false,
-        logging: true,
+        logging: false,
       }),
       inject: [ConfigService],
     }),
