@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import axios from 'axios';
 import GoogleLoginResult from './types/GoogleLoginResult';
-import KakaoLoginResult from './types/KakaoLoginResult';
+import { KakaoLoginResult } from './types/KakaoLoginResult';
 import CreateUserDto from '../users/dto/CreateUser.dto';
 import UserEntity from '../users/entities/user.entity';
 import JwtLoginResult from './types/JwtLoginResult';

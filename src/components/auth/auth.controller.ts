@@ -60,10 +60,10 @@ export class AuthController {
 
     const createUserDto = await transformAndValidate(CreateUserDto, {
       loginProvider: LoginProvider.KAKAO,
-      snsId: kakaoUserProfile.id,
-      name: kakaoUserProfile.kakaoAccount.name,
-      email: kakaoUserProfile.kakaoAccount.email,
-      thumbnailUrl: kakaoUserProfile.kakaoAccount.profile.profile_image_url,
+      snsId: String(kakaoUserProfile.id),
+      name: kakaoUserProfile.properties.nickname,
+      email: kakaoUserProfile.kakao_account.email,
+      thumbnailUrl: kakaoUserProfile.kakao_account.profile.profile_image_url,
     });
 
     const user = await this.authService.getOrCreateUser(createUserDto);
