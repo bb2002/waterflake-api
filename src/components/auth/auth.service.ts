@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import axios from 'axios';
 import GoogleLoginResult from './types/GoogleLoginResult';
+import KakaoLoginResult from './types/KakaoLoginResult';
 import CreateUserDto from '../users/dto/CreateUser.dto';
 import UserEntity from '../users/entities/user.entity';
 import JwtLoginResult from './types/JwtLoginResult';
@@ -23,6 +24,20 @@ export class AuthService {
       );
 
       return data as GoogleLoginResult;
+    } catch (ex) {
+      return null;
+    }
+  }
+
+  async getUserProfileFromKakao(
+    accessToken: string,
+  ): Promise<KakaoLoginResult | null> {
+    try {
+      const { data } = await axios.get(`https://kapi.kakao.com/v2/user/me`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      return data as KakaoLoginResult;
     } catch (ex) {
       return null;
     }

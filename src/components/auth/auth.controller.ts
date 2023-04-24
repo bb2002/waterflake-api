@@ -46,6 +46,31 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  // See https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#req-user-info
+  @Post('kakao')
+  async kakaoLogin(@Headers('Authorization') authorizationField: string) {
+    const accessToken = this.getOrThrowBearerToken(authorizationField);
+
+    const kakaoUserProfile = await this.authService.getUserProfileFromKakao(
+      accessToken,
+    );
+    if (!kakaoUserProfile) {
+      throw new InvalidAccessTokenException();
+    }
+
+    const createUserDto = await transformAndValidate(CreateUserDto, {
+      loginProvider: LoginProvider.KAKAO,
+      snsId: kakaoUserProfile.id,
+      name: kakaoUserProfile.kakaoAccount.name,
+      email: kakaoUserProfile.kakaoAccount.email,
+      thumbnailUrl: kakaoUserProfile.kakaoAccount.profile.profile_image_url,
+    });
+
+    const user = await this.authService.getOrCreateUser(createUserDto);
+
+    return this.authService.login(user);
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('/tunnel/:clientId')
   async tunnelLogin(
