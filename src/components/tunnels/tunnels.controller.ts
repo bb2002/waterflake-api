@@ -96,8 +96,11 @@ export class TunnelsController {
     return this.tunnelsService.updateTunnel(tunnel, updateTunnelDto);
   }
 
-  private validateIsTunnelOwner(tunnel: TunnelEntity, owner: UserEntity) {
-    if (tunnel.owner._id !== owner._id) {
+  private validateIsTunnelOwner(
+    tunnel: TunnelEntity | null,
+    owner: UserEntity,
+  ) {
+    if (!tunnel || tunnel.owner._id !== owner._id) {
       throw new NotFoundException();
     }
   }
