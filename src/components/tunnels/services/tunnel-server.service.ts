@@ -19,11 +19,12 @@ export class TunnelServerService {
     region,
     clientId,
   }: StartUpTunnelParams): Promise<number> {
-    const response = await this.createTunnelServerAxios(
-      region.accessToken,
-    ).post('/server/load', {
-      clientId,
-    });
+    const response = await this.createTunnelServerAxios(region).post(
+      '/server/load',
+      {
+        clientId,
+      },
+    );
 
     if (response.status === HttpStatus.CREATED) {
       return response.data._id as number;
@@ -33,9 +34,9 @@ export class TunnelServerService {
   }
 
   async shutdownTunnel({ region, clientId }: ShutdownTunnelParams) {
-    const response = await this.createTunnelServerAxios(
-      region.accessToken,
-    ).delete(`/server/shutdown/${clientId}`);
+    const response = await this.createTunnelServerAxios(region).delete(
+      `/server/shutdown/${clientId}`,
+    );
 
     if (response.status === HttpStatus.OK) {
       return;
@@ -44,10 +45,11 @@ export class TunnelServerService {
     throw new TunnelServerException('Shutdown failure');
   }
 
-  private createTunnelServerAxios(token: string) {
+  private createTunnelServerAxios(region: RegionEntity) {
     return axios.create({
+      baseURL: region.apiEndPoint,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${region.accessToken}`,
         'Content-Type': 'application/json',
       },
     });
