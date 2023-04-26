@@ -85,7 +85,14 @@ export class TunnelsService {
 
   async updateTunnel(tunnel: TunnelEntity, updateTunnelDto: UpdateTunnelDto) {
     const { name } = updateTunnelDto;
-    return this.tunnelRepository.update({ name }, tunnel);
+    return this.tunnelRepository.update(
+      {
+        _id: tunnel._id,
+      },
+      {
+        name,
+      },
+    );
   }
 
   async deleteTunnel(tunnel: TunnelEntity) {
