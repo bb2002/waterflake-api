@@ -93,7 +93,7 @@ export class TunnelsController {
     const tunnel = await this.tunnelsService.getTunnelByClientId(clientId);
     this.validateIsTunnelOwner(tunnel, user);
 
-    return this.tunnelsService.updateTunnel(tunnel, updateTunnelDto);
+    await this.tunnelsService.updateTunnel(tunnel, updateTunnelDto);
   }
 
   private validateIsTunnelOwner(
