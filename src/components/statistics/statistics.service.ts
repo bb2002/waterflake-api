@@ -110,7 +110,7 @@ export class StatisticsService {
       .createQueryBuilder('tf')
       .select('tf.date as date')
       .orderBy('tf.date', 'ASC')
-      .addSelect('SUM(tf.value) as value')
+      .addSelect('AVG(tf.value) as value')
       .where('tf.tunnel_id = :tunnelId', { tunnelId: tunnel._id })
       .groupBy('tf.date')
       .limit(20)
