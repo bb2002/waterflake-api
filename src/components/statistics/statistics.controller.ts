@@ -1,8 +1,13 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Param,
   ParseArrayPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { StatisticsService } from './statistics.service';
@@ -10,14 +15,43 @@ import { RegionAccessTokenGuard } from '../../common/guards/region-access-token.
 import CreateTrafficStatisticDto from './dto/CreateTrafficStatistic.dto';
 import CreateConnectionStatisticDto from './dto/CreateConnectionStatistic.dto';
 import CreateStatisticDto from './dto/CreateStatistic.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import GetStatisticsDto from './dto/GetStatistics.dto';
+import { TunnelsService } from '../tunnels/services/tunnels.service';
+import UserEntity from '../users/entities/user.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('statistics')
 export class StatisticsController {
-  constructor(private readonly statisticsService: StatisticsService) {}
+  constructor(
+    private readonly statisticsService: StatisticsService,
+    private readonly tunnelsService: TunnelsService,
+  ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/traffic')
+  async getTrafficStatistics(
+    @CurrentUser() user: UserEntity,
+    @Query() getStatisticDto: GetStatisticsDto,
+  ) {
+    await this.validateIsTunnelOwner(user, getStatisticDto.clientId);
+    return this.statisticsService.getDailyTrafficStatistics(getStatisticDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/connection')
+  async getConnectionStatistics(
+    @CurrentUser() user: UserEntity,
+    @Query() getStatisticDto: GetStatisticsDto,
+  ) {
+    await this.validateIsTunnelOwner(user, getStatisticDto.clientId);
+    return this.statisticsService.getDailyConnectionStatistics(getStatisticDto);
+  }
 
   @UseGuards(RegionAccessTokenGuard)
   @Post('/traffic')
   async reportTrafficStatistics(
+    @CurrentUser() user: UserEntity,
     @Body(new ParseArrayPipe({ items: CreateTrafficStatisticDto }))
     createTrafficDto: CreateTrafficStatisticDto[],
   ) {
@@ -54,5 +88,16 @@ export class StatisticsController {
       }
       return acc;
     }, []);
+  }
+
+  private async validateIsTunnelOwner(user: UserEntity, clientId: string) {
+    const tunnel = await this.tunnelsService.getTunnelByClientId(clientId);
+    if (!tunnel) {
+      throw new NotFoundException();
+    }
+
+    if (tunnel.owner._id !== user._id) {
+      throw new ForbiddenException();
+    }
   }
 }
