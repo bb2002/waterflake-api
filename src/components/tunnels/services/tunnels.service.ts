@@ -115,7 +115,7 @@ export class TunnelsService {
 
     try {
       // 터널을 디비상에서 삭제
-      await this.tunnelRepository.delete(tunnel);
+      await this.tunnelRepository.remove(tunnel);
 
       // Cloudflare SRV 레코드 삭제
       await this.cloudflareService.deleteSRVRecord(deleteSRVRecordDto);
