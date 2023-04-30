@@ -105,6 +105,14 @@ export class TunnelsService {
 
     const region = (await this.getTunnelByClientId(tunnel.clientId)).region;
 
+    // 터널 중단
+    try {
+      await this.tunnelServerService.shutdownTunnel({
+        region,
+        clientId: tunnel.clientId,
+      });
+    } catch (ex) {}
+
     try {
       // 터널을 디비상에서 삭제
       await this.tunnelRepository.delete(tunnel);
@@ -112,16 +120,10 @@ export class TunnelsService {
       // Cloudflare SRV 레코드 삭제
       await this.cloudflareService.deleteSRVRecord(deleteSRVRecordDto);
 
-      // 터널 중단
-      await this.tunnelServerService.shutdownTunnel({
-        region,
-        clientId: tunnel.clientId,
-      });
-
       // TODO 삭제된 터널에 대한 로그를 남긴다.
     } catch (ex) {
       this.logger.error(ex);
-      throw ex;
+      throw new DeleteTunnelFailureException();
     }
   }
 
