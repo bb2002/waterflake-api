@@ -121,7 +121,7 @@ export class TunnelsService {
       // TODO 삭제된 터널에 대한 로그를 남긴다.
     } catch (ex) {
       this.logger.error(ex);
-      throw new DeleteTunnelFailureException();
+      throw ex;
     }
   }
 
