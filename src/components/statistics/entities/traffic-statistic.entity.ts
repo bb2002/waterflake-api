@@ -43,7 +43,7 @@ export default class TrafficStatisticEntity {
     type: 'varchar',
     nullable: false,
   })
-  date: string;
+  date: Date;
 
   @Index('ix_time')
   @Column({

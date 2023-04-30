@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import CreateTrafficStatisticDto from './dto/CreateTrafficStatistic.dto';
 import CreateConnectionStatisticDto from './dto/CreateConnectionStatistic.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createConnection, Repository } from 'typeorm';
+import { Between, createConnection, Repository } from 'typeorm';
 import TrafficStatisticEntity from './entities/traffic-statistic.entity';
 import ConnectionStatisticEntity from './entities/connection-statistic.entity';
 import { TunnelsService } from '../tunnels/services/tunnels.service';
 import { format, getISOWeek } from 'date-fns';
+import GetStatisticsDto from './dto/GetStatistics.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -36,7 +37,7 @@ export class StatisticsService {
             );
             await repo.delete({
               tunnel,
-              date: dateOptions.date,
+              date: new Date(dateOptions.date),
               time: dateOptions.time,
             });
             await repo.insert({
@@ -82,6 +83,38 @@ export class StatisticsService {
         );
       }
     }
+  }
+
+  async getDailyTrafficStatistics(getStatisticDto: GetStatisticsDto) {
+    const tunnel = await this.tunnelsService.getTunnelByClientId(
+      getStatisticDto.clientId,
+    );
+
+    return this.trafficStatisticRepository
+      .createQueryBuilder('tf')
+      .select('tf.date as date')
+      .orderBy('tf.date', 'ASC')
+      .addSelect('SUM(tf.value) as value')
+      .where('tf.tunnel_id = :tunnelId', { tunnelId: tunnel._id })
+      .groupBy('tf.date')
+      .limit(20)
+      .getRawMany();
+  }
+
+  async getDailyConnectionStatistics(getStatisticDto: GetStatisticsDto) {
+    const tunnel = await this.tunnelsService.getTunnelByClientId(
+      getStatisticDto.clientId,
+    );
+
+    return this.connectionStatisticRepository
+      .createQueryBuilder('tf')
+      .select('tf.date as date')
+      .orderBy('tf.date', 'ASC')
+      .addSelect('AVG(tf.value) as value')
+      .where('tf.tunnel_id = :tunnelId', { tunnelId: tunnel._id })
+      .groupBy('tf.date')
+      .limit(20)
+      .getRawMany();
   }
 
   private buildDateOptions(date: Date) {
