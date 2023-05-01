@@ -51,7 +51,6 @@ export class StatisticsController {
   @UseGuards(RegionAccessTokenGuard)
   @Post('/traffic')
   async reportTrafficStatistics(
-    @CurrentUser() user: UserEntity,
     @Body(new ParseArrayPipe({ items: CreateTrafficStatisticDto }))
     createTrafficDto: CreateTrafficStatisticDto[],
   ) {
